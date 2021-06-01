@@ -1,3 +1,4 @@
+![sketch1622547184454](https://user-images.githubusercontent.com/5004900/120317742-43c93280-c2f4-11eb-9c5d-0914bd2d9396.png)
 # mastrade
 MasTrade is a trading bot in baselines3,pytorch,gym
 
