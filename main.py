@@ -5,7 +5,7 @@ import gym
 from gym import spaces
 from gym.utils import seeding
 from gym.envs.classic_control import rendering
-MONKEY_HIGH = 10000
+MONKEY_HIGH = 50
 NUMBER_OF_ROPES = 30
 
 
@@ -49,8 +49,7 @@ class monkeyEnv(gym.Env):
 
         if self.monkey_last_pos != self.monkey_pos:
             self.monkey_last_high = self.monkey_high
-            self.monkey_high = self.monkey_high / \
-                self.ropes.iat[-1, self.monkey_pos]
+            self.monkey_high = self.ropes.iat[-1, self.monkey_pos]
         # self.rope_high = self.ropes.iat[-1, self.monkey_pos]
         # self.last_rope_high = self.ropes.iat[-1, self.monkey_last_pos]
         # self.monkey_last_high = self.monkey_high * self.last_rope_high
@@ -116,7 +115,7 @@ df = pd.DataFrame(
 df.insert(loc=0, column=0, value=[1]*100)
 
 
-# for example we have 1USDT in start(MONKEY_HIGH=1)
+# for example we have 50$ in start
 env = monkeyEnv(ropes=df, monkey_high=MONKEY_HIGH, n=30)
 
 model = PPO("MlpPolicy", env, verbose=1)
@@ -132,6 +131,6 @@ while True:
     action, _states = model.predict(obs)
     obs, rewards, dones, info = env.step(action)
     env.render()
-    print(info['monkey_high'], 1)
+    print(info['monkey_high'])
     if info['time'] >= 100:
         env.reset()
