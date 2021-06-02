@@ -5,26 +5,21 @@ import gym
 from gym import spaces
 from gym.utils import seeding
 from gym.envs.classic_control import rendering
+MONKEY_HIGH = 10000
+NUMBER_OF_ROPES = 30
 
 
-class MonkeyEnv(gym.Env):
+class monkeyEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, ropes, stock):
+    def __init__(self, ropes, monkey_high, n):
         self.ropes = ropes
-        self.size = 4
-        self.stock = stock
+        self.monkey_high = monkey_high
         self.viewer = None
+        self.n = n
 
-        # init
-        # self.Monkey_pos = 0
-        # self.Monkey_last_pos = 0
-        # self.Monkey_price = ropes.iat[-1, 0]
-        # self.Monkey_last_pos_price = ropes.iat[-1, 0]
-        # self.time = 0
-        # self.last_time = 0
         # actions
-        self.action_space = spaces.Discrete(4)
+        self.action_space = spaces.Discrete(self.n)
         self.observation_space = spaces.Box(
             low=-np.inf,
             high=np.inf,
@@ -36,60 +31,73 @@ class MonkeyEnv(gym.Env):
         return [seed]
 
     def reset(self):
-        self.Monkey_pos = 0
-        self.Monkey_last_pos = 0
-        self.Monkey_price = self.ropes.iat[-1, 0]
-        self.Monkey_last_pos_price = self.ropes.iat[-1, 0]
-        self.time = 0
+        self.monkey_last_pos = 0
+        self.monkey_pos = 0
+        self.rope_high = 1
+        self.last_rope_high = 1
+        self.monkey_last_high = MONKEY_HIGH
+        self.monkey_high = MONKEY_HIGH
         self.last_time = 0
+        self.time = 0
 
-        return np.array([self.Monkey_pos]).astype(np.float32)
+        return np.array([self.monkey_pos]).astype(np.float32)
 
     def step(self, action):
-        self.Monkey_last_pos = self.Monkey_pos
-        self.Monkey_pos = action
 
-        self.Monkey_price = self.ropes.iat[-1, self.Monkey_pos]
-        self.Monkey_last_pos_price = self.ropes.iat[-1, self.Monkey_last_pos]
-        self.stock = self.stock / self.Monkey_price
+        self.monkey_last_pos = self.monkey_pos
+        self.monkey_pos = action
 
-        self.last_time = self.time
+        if self.monkey_last_pos != self.monkey_pos:
+            self.monkey_last_high = self.monkey_high
+            self.monkey_high = self.monkey_high / \
+                self.ropes.iat[-1, self.monkey_pos]
+        # self.rope_high = self.ropes.iat[-1, self.monkey_pos]
+        # self.last_rope_high = self.ropes.iat[-1, self.monkey_last_pos]
+        # self.monkey_last_high = self.monkey_high * self.last_rope_high
+        # self.monkey_high = self.monkey_high * self.rope_high
         self.time += 1
-        # updating ropes:
-        # for i in range(3):
-        #     self.ropes[i] = self.ropes[i] * self.Monkey_price / \
-        #         self.ropes.iat[-1, self.Monkey_pos]
-
         done = True if self.time == 100 else False
-        reward = 0.01 * self.Monkey_last_pos_price - self.Monkey_price
+        reward = 0.01 * (self.monkey_high - self.monkey_last_high)
 
-        # Optionally we can pass additional info, we are not using that for now
-        info = {'time': self.time}
+        info = {
+            "monkey_last_pos": self.monkey_last_pos,
+            "monkey_pos": self.monkey_pos,
 
-        return np.array([self.Monkey_pos]).astype(np.float32), reward, done, info
+            "rope_high": self.rope_high,
+            "last_rope_high": self.last_rope_high,
+
+            "monkey_last_high": self.monkey_last_high,
+            "monkey_high": self.monkey_high,
+
+            "last_time": self.last_time,
+            "time": self.time,
+
+        }
+
+        return np.array([self.monkey_pos]).astype(np.float32), reward, done, info
 
     def render(self, mode='human'):
 
         if self.viewer is None:
+
             self.viewer = rendering.Viewer(2000, 500)
-            for i in range(3):
+
+            for i in range(self.n-1):
                 xs = pd.Series(range(100))
                 ys = self.ropes.iloc[:, i]
                 xys = list(zip(xs*20, ys*5))
                 self.track = rendering.make_polyline(xys)
                 self.track.set_linewidth(1)
                 self.track.set_color(*np.random.rand(3))
-
                 self.viewer.add_geom(self.track)
+
         else:
-
+            self.monkey = rendering.make_circle(radius=5)
             x = self.time
-            y = self.Monkey_price
-            self.Monkey = rendering.make_circle()
-            self.Monkey.set_color(*np.random.rand(3))
-
-            self.Monkey.add_attr(rendering.Transform(translation=(x*20, y*5)))
-            self.viewer.add_geom(self.Monkey)
+            y = self.monkey_high
+            self.monkey.set_color(*np.random.rand(3))
+            self.monkey.add_attr(rendering.Transform(translation=(x*20, y*5)))
+            self.viewer.add_geom(self.monkey)
 
         return self.viewer.render(return_rgb_array=mode == 'rgb_array')
 
@@ -99,11 +107,17 @@ class MonkeyEnv(gym.Env):
 # --------------------------------------------------------------
 
 
-df = pd.DataFrame(np.random.randint(
-    1, 100, size=(100, 4)))
+df = pd.DataFrame(
+    np.random.randint(
+        1, 100, size=(100, NUMBER_OF_ROPES)
+    ),
+    columns=list(range(1, NUMBER_OF_ROPES+1))
+)
+df.insert(loc=0, column=0, value=[1]*100)
 
 
-env = MonkeyEnv(ropes=df, stock=1000)  # for example we have 1000$ in start
+# for example we have 1USDT in start(MONKEY_HIGH=1)
+env = monkeyEnv(ropes=df, monkey_high=MONKEY_HIGH, n=30)
 
 model = PPO("MlpPolicy", env, verbose=1)
 model.learn(total_timesteps=2500)
@@ -117,5 +131,7 @@ obs = env.reset()
 while True:
     action, _states = model.predict(obs)
     obs, rewards, dones, info = env.step(action)
-    print(obs, rewards, dones, info)
     env.render()
+    print(info['monkey_high'], 1)
+    if info['time'] >= 100:
+        env.reset()
