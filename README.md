@@ -14,7 +14,6 @@ think about the agent as a monkey that jumping on ropes
 and try to go upeer and upper
 also in each epoch we update the charts with a value that we will 
 have in btc if we buy it
-<p />
-<center>
+<p align="center">
 <img src="https://user-images.githubusercontent.com/5004900/120317742-43c93280-c2f4-11eb-9c5d-0914bd2d9396.png" data-canonical-src="https://user-images.githubusercontent.com/5004900/120317742-43c93280-c2f4-11eb-9c5d-0914bd2d9396.png" height="700" />
-</center>
+</p>
