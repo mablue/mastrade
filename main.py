@@ -14,6 +14,8 @@ class MonkeyEnv(gym.Env):
         self.ropes = ropes
         self.size = 4
         self.stock = stock
+        self.viewer = None
+
         # init
         # self.Monkey_pos = 0
         # self.Monkey_last_pos = 0
@@ -27,7 +29,7 @@ class MonkeyEnv(gym.Env):
             low=-np.inf,
             high=np.inf,
             shape=(1,),
-            dtype=reset)
+            dtype=np.float32)
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -60,8 +62,7 @@ class MonkeyEnv(gym.Env):
 
         done = True if self.time == 100 else False
         reward = 0.01 * self.Monkey_last_pos_price - self.Monkey_price
-        if done:
-            env.reset()
+
         # Optionally we can pass additional info, we are not using that for now
         info = {'time': self.time}
 
