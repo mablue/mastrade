@@ -119,7 +119,7 @@ df.insert(loc=0, column=0, value=[1]*100)
 env = monkeyEnv(ropes=df, monkey_high=MONKEY_HIGH, n=30)
 
 model = PPO("MlpPolicy", env, verbose=1)
-model.learn(total_timesteps=2500)
+model.learn(total_timesteps=100000)
 model.save("ppo_monkey")
 
 del model  # remove to demonstrate saving and loading
