@@ -1,4 +1,5 @@
-![idea](https://user-images.githubusercontent.com/5004900/120317742-43c93280-c2f4-11eb-9c5d-0914bd2d9396.png)
+<img src="https://user-images.githubusercontent.com/5004900/120317742-43c93280-c2f4-11eb-9c5d-0914bd2d9396.png" data-canonical-src="https://user-images.githubusercontent.com/5004900/120317742-43c93280-c2f4-11eb-9c5d-0914bd2d9396.png" height="400" />
+
 # mastrade
 MasTrade is a trading bot in baselines3,pytorch,gym
 
