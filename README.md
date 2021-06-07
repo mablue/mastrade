@@ -21,4 +21,4 @@ have in btc if we buy it
 
 an small talking with my bro:
 - bro your actions space are fucking big.reduce it to -1:sell, 0:hold, 1:buy,
-- yes cuz its idea of my mind to solve the complexity of trading and see the whole process of selling, searching the best other pair, and buying, as a dot as a one jump
+- yes cuz its an idea to solve the complexity of trading and see the whole process of selling, searching the best other pair, and buying, as a dot as a one jump
